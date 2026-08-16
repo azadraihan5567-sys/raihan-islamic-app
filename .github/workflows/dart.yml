@@ -1,4 +1,4 @@
-# name: Flutter Build
+name: Flutter Build
 
 on:
   push:
@@ -30,5 +30,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: raihan-islamic-app
-          path: build/app/outputs/flutter-apk/app-release.apkThis push:
-    
+          path: build/app/outputs/flutter-apk/app-release.apk
