@@ -1,6 +1,4 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 
 void main() {
   runApp(const RaihanIslamicApp());
@@ -16,7 +14,12 @@ class RaihanIslamicApp extends StatelessWidget {
       title: 'Raihan Islamic App',
       theme: ThemeData(
         useMaterial3: true,
-        colorSchemeSeed: Colors.green,
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: const Color(0xFF006B4F),
+          brightness: Brightness.light,
+        ),
+        scaffoldBackgroundColor: const Color(0xFFF8F6EF),
+        fontFamily: 'Arial',
       ),
       home: const HomePage(),
     );
@@ -26,108 +29,347 @@ class RaihanIslamicApp extends StatelessWidget {
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
 
+  static const green = Color(0xFF006B4F);
+  static const gold = Color(0xFFD8A83E);
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          'Raihan Islamic App',
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
+        backgroundColor: green,
+        foregroundColor: Colors.white,
         centerTitle: true,
+        title: const Column(
+          children: [
+            Text(
+              'Raihan Islamic App',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+            Text('দীন জানুন, জীবন গড়ুন', style: TextStyle(fontSize: 12)),
+          ],
+        ),
+        actions: [
+          IconButton(
+            onPressed: () {},
+            icon: const Icon(Icons.notifications_outlined),
+          ),
+        ],
       ),
       body: ListView(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(14),
         children: [
-          Container(
-            padding: const EdgeInsets.all(22),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(24),
-              gradient: const LinearGradient(
-                colors: [
-                  Color(0xff087f5b),
-                  Color(0xff20a878),
+          _dateLocationCard(),
+          const SizedBox(height: 12),
+          _nextPrayerCard(context),
+          const SizedBox(height: 16),
+          const Text(
+            'আজকের নামাজের সময়',
+            style: TextStyle(fontSize: 19, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 8),
+          _prayerRow('ফজর', '04:36 AM', Icons.nightlight_round),
+          _prayerRow('যোহর', '12:45 PM', Icons.wb_sunny_outlined),
+          _prayerRow('আসর', '04:15 PM', Icons.wb_twilight),
+          _prayerRow('মাগরিব', '06:35 PM', Icons.wb_twilight),
+          _prayerRow('এশা', '07:50 PM', Icons.nightlight),
+          const SizedBox(height: 16),
+          const Text(
+            'ইসলামিক বিষয়সমূহ',
+            style: TextStyle(fontSize: 19, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 8),
+          GridView.count(
+            crossAxisCount: 2,
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            crossAxisSpacing: 10,
+            mainAxisSpacing: 10,
+            childAspectRatio: 1.35,
+            children: [
+              _feature(context, '📖', 'কুরআন', 'তিলাওয়াত ও অনুবাদ'),
+              _feature(context, '📜', 'হাদিস', 'সহিহ হাদিসসমূহ'),
+              _feature(context, '📚', 'মাসআলা', 'ইসলামিক মাসআলা'),
+              _feature(context, '🤲', 'দোয়া ও যিকির', 'দৈনন্দিন দোয়া'),
+              _feature(context, '🧭', 'কিবলা', 'কিবলা নির্দেশনা'),
+              _feature(context, '📿', 'তাসবিহ', 'ডিজিটাল তাসবিহ'),
+              _feature(context, '🌙', 'রমজান', 'সেহরি, ইফতার ও রোজা'),
+              _feature(context, '📅', 'ইসলামিক ক্যালেন্ডার', 'হিজরি তারিখ'),
+              _feature(context, '👦', 'নামাজ শিক্ষা', 'ধাপে ধাপে নামাজ'),
+              _feature(context, '📚', 'ইসলামিক গল্প', 'শিক্ষামূলক গল্প'),
+              _feature(context, '⭐', 'বুকমার্ক / প্রিয়', 'সংরক্ষিত কনটেন্ট'),
+              _feature(context, '🔔', 'আজান Alarm', 'নামাজের সময় অ্যালার্ম'),
+            ],
+          ),
+          const SizedBox(height: 16),
+          _simpleCard(
+            context,
+            icon: Icons.settings_outlined,
+            title: 'Settings',
+            subtitle: 'ভাষা, নোটিফিকেশন ও অন্যান্য সেটিংস',
+          ),
+        ],
+      ),
+      bottomNavigationBar: NavigationBar(
+        selectedIndex: 0,
+        destinations: const [
+          NavigationDestination(icon: Icon(Icons.home), label: 'হোম'),
+          NavigationDestination(icon: Icon(Icons.access_time), label: 'নামাজ'),
+          NavigationDestination(icon: Icon(Icons.menu_book), label: 'কুরআন'),
+          NavigationDestination(icon: Icon(Icons.library_books), label: 'হাদিস'),
+          NavigationDestination(icon: Icon(Icons.grid_view), label: 'আরও'),
+        ],
+      ),
+    );
+  }
+
+  Widget _dateLocationCard() {
+    return Card(
+      elevation: 0,
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Row(
+          children: [
+            const Icon(Icons.location_on_outlined, color: green, size: 30),
+            const SizedBox(width: 10),
+            const Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('ঢাকা, বাংলাদেশ',
+                      style: TextStyle(fontWeight: FontWeight.bold)),
+                  SizedBox(height: 4),
+                  Text('আজ • ১৬ আগস্ট ২০২৬'),
+                  Text('হিজরি তারিখ • লোকেশন অনুযায়ী আপডেট হবে'),
                 ],
               ),
             ),
-            child: const Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            IconButton(
+              onPressed: () {},
+              icon: const Icon(Icons.my_location),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _nextPrayerCard(BuildContext context) {
+    return Card(
+      color: green,
+      child: Padding(
+        padding: const EdgeInsets.all(18),
+        child: Row(
+          children: [
+            const Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('পরবর্তী নামাজ',
+                      style: TextStyle(color: Colors.white70)),
+                  SizedBox(height: 4),
+                  Text('যোহর',
+                      style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 30,
+                          fontWeight: FontWeight.bold)),
+                  Text('12:45 PM',
+                      style: TextStyle(color: gold, fontSize: 22)),
+                ],
+              ),
+            ),
+            Column(
               children: [
-                Text(
-                  'بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ',
-                  textDirection: TextDirection.rtl,
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 25,
-                    fontWeight: FontWeight.bold,
+                const Text('01:45:32',
+                    style: TextStyle(color: Colors.white, fontSize: 23)),
+                const Text('বাকি সময়',
+                    style: TextStyle(color: Colors.white70, fontSize: 12)),
+                const SizedBox(height: 8),
+                FilledButton.icon(
+                  style: FilledButton.styleFrom(
+                    backgroundColor: Colors.white,
+                    foregroundColor: green,
                   ),
-                ),
-                SizedBox(height: 12),
-                Text(
-                  'আল্লাহর নামে শুরু করছি, যিনি পরম করুণাময়, অতি দয়ালু।',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 16,
-                  ),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const AlarmPage(),
+                      ),
+                    );
+                  },
+                  icon: const Icon(Icons.notifications_active_outlined),
+                  label: const Text('Alarm'),
                 ),
               ],
             ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _prayerRow(String name, String time, IconData icon) {
+    return Card(
+      elevation: 0,
+      child: ListTile(
+        leading: Icon(icon, color: green),
+        title: Text(name, style: const TextStyle(fontWeight: FontWeight.bold)),
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(time),
+            const SizedBox(width: 8),
+            Icon(Icons.notifications_none, color: Colors.grey.shade600),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _feature(
+    BuildContext context,
+    String emoji,
+    String title,
+    String subtitle,
+  ) {
+    return Card(
+      elevation: 0,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(14),
+        onTap: () => Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => FeaturePage(title: title, subtitle: subtitle),
           ),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(12),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(emoji, style: const TextStyle(fontSize: 34)),
+              const SizedBox(height: 5),
+              Text(title,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(fontWeight: FontWeight.bold)),
+              Text(subtitle,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(fontSize: 11)),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 
-          const SizedBox(height: 20),
+  Widget _simpleCard(
+    BuildContext context, {
+    required IconData icon,
+    required String title,
+    required String subtitle,
+  }) {
+    return Card(
+      child: ListTile(
+        leading: const Icon(Icons.settings, color: green),
+        title: Text(title),
+        subtitle: Text(subtitle),
+        trailing: const Icon(Icons.chevron_right),
+        onTap: () {},
+      ),
+    );
+  }
+}
 
-          Card(
-            child: ListTile(
-              leading: const CircleAvatar(
-                child: Icon(Icons.menu_book_rounded),
+class FeaturePage extends StatelessWidget {
+  final String title;
+  final String subtitle;
+
+  const FeaturePage({
+    super.key,
+    required this.title,
+    required this.subtitle,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text(title)),
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Text('🕌', style: TextStyle(fontSize: 70)),
+              const SizedBox(height: 20),
+              Text(title,
+                  style: const TextStyle(
+                      fontSize: 28, fontWeight: FontWeight.bold)),
+              const SizedBox(height: 8),
+              Text(subtitle, textAlign: TextAlign.center),
+              const SizedBox(height: 24),
+              const Text(
+                'এই পেজটি পরের ধাপে সম্পূর্ণ ফিচারসহ তৈরি করা হবে।',
+                textAlign: TextAlign.center,
               ),
-              title: const Text(
-                'আল-কুরআন',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 18,
-                ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class AlarmPage extends StatefulWidget {
+  const AlarmPage({super.key});
+
+  @override
+  State<AlarmPage> createState() => _AlarmPageState();
+}
+
+class _AlarmPageState extends State<AlarmPage> {
+  final Map<String, bool> alarms = {
+    'ফজর': true,
+    'যোহর': true,
+    'আসর': true,
+    'মাগরিব': true,
+    'এশা': true,
+  };
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('আজান Alarm Settings')),
+      body: ListView(
+        padding: const EdgeInsets.all(16),
+        children: [
+          const Text(
+            'নামাজের সময় অনুযায়ী আজান/নোটিফিকেশন',
+            style: TextStyle(fontSize: 19, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 10),
+          ...alarms.keys.map(
+            (name) => Card(
+              child: SwitchListTile(
+                value: alarms[name]!,
+                title: Text(name),
+                subtitle: const Text('আজানের সময় notification'),
+                secondary: const Icon(Icons.notifications_active_outlined),
+                onChanged: (value) {
+                  setState(() => alarms[name] = value);
+                },
               ),
-              subtitle: const Text(
-                '১১৪ সূরা • আরবি • বাংলা অনুবাদ • Search',
-              ),
-              trailing: const Icon(Icons.arrow_forward_ios),
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => const QuranPage(),
-                  ),
-                );
-              },
             ),
           ),
-
-          Card(
-            child: ListTile(
-              leading: const CircleAvatar(
-                child: Icon(Icons.access_time),
+          const SizedBox(height: 12),
+          const Card(
+            child: Padding(
+              padding: EdgeInsets.all(16),
+              child: Text(
+                'নোট: এই starter version-এ UI ও toggle তৈরি আছে। '
+                'পরের ধাপে Android/iPhone-এর আসল local notification, '
+                'azan audio, location এবং prayer-time calculation যুক্ত করা হবে।',
               ),
-              title: const Text(
-                'নামাজের সময়',
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
-              subtitle: const Text('শীঘ্রই যোগ করা হবে'),
-              onTap: () {},
-            ),
-          ),
-
-          Card(
-            child: ListTile(
-              leading: const CircleAvatar(
-                child: Icon(Icons.auto_stories),
-              ),
-              title: const Text(
-                'হাদিস',
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
-              subtitle: const Text('শীঘ্রই যোগ করা হবে'),
-              onTap: () {},
             ),
           ),
         ],
@@ -135,459 +377,3 @@ class HomePage extends StatelessWidget {
     );
   }
 }
-
-class QuranPage extends StatefulWidget {
-  const QuranPage({super.key});
-
-  @override
-  State<QuranPage> createState() => _QuranPageState();
-}
-
-class _QuranPageState extends State<QuranPage> {
-  List<Surah> surahs = [];
-  List<Surah> filteredSurahs = [];
-
-  bool loading = true;
-  String error = '';
-
-  @override
-  void initState() {
-    super.initState();
-    loadSurahs();
-  }
-
-  Future<void> loadSurahs() async {
-    try {
-      final response = await http.get(
-        Uri.parse('https://api.alquran.cloud/v1/surah'),
-      );
-
-      if (response.statusCode != 200) {
-        throw Exception('Server error');
-      }
-
-      final json = jsonDecode(response.body);
-
-      final List data = json['data'];
-
-      final result = data.map((item) {
-        return Surah(
-          number: item['number'],
-          name: item['name'],
-          englishName: item['englishName'],
-          translation: item['englishNameTranslation'],
-          numberOfAyahs: item['numberOfAyahs'],
-          revelationType: item['revelationType'],
-        );
-      }).toList();
-
-      setState(() {
-        surahs = result;
-        filteredSurahs = result;
-        loading = false;
-      });
-    } catch (e) {
-      setState(() {
-        loading = false;
-        error = 'কুরআনের তথ্য লোড করা যাচ্ছে না।\nInternet সংযোগ পরীক্ষা করুন।';
-      });
-    }
-  }
-
-  void searchSurah(String query) {
-    final text = query.trim().toLowerCase();
-
-    if (text.isEmpty) {
-      setState(() {
-        filteredSurahs = surahs;
-      });
-      return;
-    }
-
-    setState(() {
-      filteredSurahs = surahs.where((surah) {
-        return surah.name.toLowerCase().contains(text) ||
-            surah.englishName.toLowerCase().contains(text) ||
-            surah.number.toString() == text;
-      }).toList();
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-          'আল-কুরআন',
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
-        centerTitle: true,
-      ),
-      body: loading
-          ? const Center(
-              child: CircularProgressIndicator(),
-            )
-          : error.isNotEmpty
-              ? Center(
-                  child: Padding(
-                    padding: const EdgeInsets.all(24),
-                    child: Text(
-                      error,
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(fontSize: 17),
-                    ),
-                  ),
-                )
-              : Column(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.all(12),
-                      child: TextField(
-                        onChanged: searchSurah,
-                        decoration: InputDecoration(
-                          hintText: 'সূরা খুঁজুন...',
-                          prefixIcon: const Icon(Icons.search),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                        ),
-                      ),
-                    ),
-
-                    Expanded(
-                      child: ListView.builder(
-                        itemCount: filteredSurahs.length,
-                        itemBuilder: (context, index) {
-                          final surah = filteredSurahs[index];
-
-                          return Card(
-                            margin: const EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 5,
-                            ),
-                            child: ListTile(
-                              leading: CircleAvatar(
-                                child: Text(
-                                  '${surah.number}',
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ),
-                              title: Text(
-                                surah.name,
-                                textDirection: TextDirection.rtl,
-                                style: const TextStyle(
-                                  fontSize: 21,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              subtitle: Text(
-                                '${surah.englishName} • ${surah.numberOfAyahs} আয়াত',
-                              ),
-                              trailing: const Icon(
-                                Icons.arrow_forward_ios,
-                                size: 18,
-                              ),
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (_) => SurahPage(
-                                      surah: surah,
-                                      allSurahs: surahs,
-                                    ),
-                                  ),
-                                );
-                              },
-                            ),
-                          );
-                        },
-                      ),
-                    ),
-                  ],
-                ),
-    );
-  }
-}
-
-class SurahPage extends StatefulWidget {
-  final Surah surah;
-  final List<Surah> allSurahs;
-
-  const SurahPage({
-    super.key,
-    required this.surah,
-    required this.allSurahs,
-  });
-
-  @override
-  State<SurahPage> createState() => _SurahPageState();
-}
-
-class _SurahPageState extends State<SurahPage> {
-  List<Ayah> ayahs = [];
-
-  bool loading = true;
-  String error = '';
-
-  @override
-  void initState() {
-    super.initState();
-    loadSurah();
-  }
-
-  Future<void> loadSurah() async {
-    try {
-      final url =
-          'https://api.alquran.cloud/v1/surah/${widget.surah.number}/editions/quran-uthmani,bn.bengali';
-
-      final response = await http.get(Uri.parse(url));
-
-      if (response.statusCode != 200) {
-        throw Exception('Failed');
-      }
-
-      final json = jsonDecode(response.body);
-
-      final List editions = json['data'];
-
-      final arabicData = editions[0]['ayahs'];
-      final bengaliData = editions[1]['ayahs'];
-
-      final List<Ayah> result = [];
-
-      for (int i = 0; i < arabicData.length; i++) {
-        result.add(
-          Ayah(
-            number: arabicData[i]['numberInSurah'],
-            arabic: arabicData[i]['text'],
-            bengali: bengaliData[i]['text'],
-          ),
-        );
-      }
-
-      setState(() {
-        ayahs = result;
-        loading = false;
-      });
-    } catch (e) {
-      setState(() {
-        loading = false;
-        error =
-            'এই সূরার তথ্য লোড করা যাচ্ছে না।\nInternet সংযোগ পরীক্ষা করুন।';
-      });
-    }
-  }
-
-  int get currentIndex {
-    return widget.allSurahs.indexWhere(
-      (s) => s.number == widget.surah.number,
-    );
-  }
-
-  void openSurah(int index) {
-    if (index < 0 || index >= widget.allSurahs.length) {
-      return;
-    }
-
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(
-        builder: (_) => SurahPage(
-          surah: widget.allSurahs[index],
-          allSurahs: widget.allSurahs,
-        ),
-      ),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.surah.name),
-        centerTitle: true,
-      ),
-      body: loading
-          ? const Center(
-              child: CircularProgressIndicator(),
-            )
-          : error.isNotEmpty
-              ? Center(
-                  child: Padding(
-                    padding: const EdgeInsets.all(24),
-                    child: Text(
-                      error,
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(fontSize: 17),
-                    ),
-                  ),
-                )
-              : Column(
-                  children: [
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(18),
-                      margin: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(20),
-                        color: Colors.green.shade50,
-                      ),
-                      child: Column(
-                        children: [
-                          Text(
-                            widget.surah.name,
-                            textDirection: TextDirection.rtl,
-                            style: const TextStyle(
-                              fontSize: 28,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const SizedBox(height: 6),
-                          Text(
-                            widget.surah.englishName,
-                            style: const TextStyle(
-                              fontSize: 17,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            '${widget.surah.numberOfAyahs} আয়াত • ${widget.surah.revelationType}',
-                          ),
-                        ],
-                      ),
-                    ),
-
-                    Expanded(
-                      child: ListView.builder(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                        ),
-                        itemCount: ayahs.length,
-                        itemBuilder: (context, index) {
-                          final ayah = ayahs[index];
-
-                          return Card(
-                            margin: const EdgeInsets.only(bottom: 12),
-                            child: Padding(
-                              padding: const EdgeInsets.all(18),
-                              child: Column(
-                                crossAxisAlignment:
-                                    CrossAxisAlignment.stretch,
-                                children: [
-                                  Align(
-                                    alignment: Alignment.centerLeft,
-                                    child: CircleAvatar(
-                                      radius: 16,
-                                      child: Text(
-                                        '${ayah.number}',
-                                        style: const TextStyle(
-                                          fontSize: 12,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-
-                                  const SizedBox(height: 16),
-
-                                  Text(
-                                    ayah.arabic,
-                                    textAlign: TextAlign.right,
-                                    textDirection: TextDirection.rtl,
-                                    style: const TextStyle(
-                                      fontSize: 28,
-                                      height: 2,
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                  ),
-
-                                  const Divider(height: 30),
-
-                                  Text(
-                                    ayah.bengali,
-                                    textAlign: TextAlign.left,
-                                    style: const TextStyle(
-                                      fontSize: 17,
-                                      height: 1.8,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                    ),
-
-                    SafeArea(
-                      child: Padding(
-                        padding: const EdgeInsets.fromLTRB(
-                          12,
-                          6,
-                          12,
-                          10,
-                        ),
-                        child: Row(
-                          children: [
-                            Expanded(
-                              child: OutlinedButton.icon(
-                                onPressed: currentIndex > 0
-                                    ? () => openSurah(currentIndex - 1)
-                                    : null,
-                                icon: const Icon(Icons.arrow_back),
-                                label: const Text('আগের সূরা'),
-                              ),
-                            ),
-                            const SizedBox(width: 10),
-                            Expanded(
-                              child: ElevatedButton.icon(
-                                onPressed:
-                                    currentIndex <
-                                            widget.allSurahs.length - 1
-                                        ? () => openSurah(currentIndex + 1)
-                                        : null,
-                                icon: const Icon(Icons.arrow_forward),
-                                label: const Text('পরের সূরা'),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-    );
-  }
-}
-
-class Surah {
-  final int number;
-  final String name;
-  final String englishName;
-  final String translation;
-  final int numberOfAyahs;
-  final String revelationType;
-
-  Surah({
-    required this.number,
-    required this.name,
-    required this.englishName,
-    required this.translation,
-    required this.numberOfAyahs,
-    required this.revelationType,
-  });
-}
-
-class Ayah {
-  final int number;
-  final String arabic;
-  final String bengali;
-
-  Ayah({
-    required this.number,
-    required this.arabic,
-    required this.bengali,
-  });
-} 
