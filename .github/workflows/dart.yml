@@ -1,274 +1,33 @@
-import 'package:flutter/material.dart';
+name: Flutter Build APK
 
-void main() {
-  runApp(const RaihanIslamicApp());
-}
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
 
-class RaihanIslamicApp extends StatelessWidget {
-  const RaihanIslamicApp({super.key});
+jobs:
+  build:
+    runs-on: ubuntu-latest
 
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Raihan Islamic App',
-      theme: ThemeData(
-        useMaterial3: true,
-        fontFamily: 'sans',
-        colorSchemeSeed: Colors.green,
-      ),
-      home: const HomePage(),
-    );
-  }
-}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
 
-class HomePage extends StatelessWidget {
-  const HomePage({super.key});
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: "3.35.2"
+          channel: stable
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-          'Raihan Islamic App',
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
-        centerTitle: true,
-      ),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          Container(
-            padding: const EdgeInsets.all(22),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(24),
-              gradient: const LinearGradient(
-                colors: [Color(0xff087f5b), Color(0xff20a878)],
-              ),
-            ),
-            child: const Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 23,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                SizedBox(height: 12),
-                Text(
-                  'আল্লাহর নামে শুরু করছি, যিনি পরম করুণাময়, অতি দয়ালু।',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 16,
-                  ),
-                ),
-              ],
-            ),
-          ),
+      - name: Flutter Pub Get
+        run: flutter pub get
 
-          const SizedBox(height: 20),
+      - name: Build APK
+        run: flutter build apk --release
 
-          _FeatureCard(
-            icon: Icons.menu_book_rounded,
-            title: 'আল-কুরআন',
-            subtitle: 'সূরা ও আয়াত পড়ুন',
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => const QuranPage(),
-                ),
-              );
-            },
-          ),
-
-          _FeatureCard(
-            icon: Icons.auto_stories_rounded,
-            title: 'হাদিস',
-            subtitle: 'হাদিস পড়ুন',
-            onTap: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('হাদিস ফিচার শীঘ্রই যোগ করা হবে।'),
-                ),
-              );
-            },
-          ),
-
-          _FeatureCard(
-            icon: Icons.access_time_rounded,
-            title: 'নামাজের সময়',
-            subtitle: 'পাঁচ ওয়াক্তের সময়সূচি',
-            onTap: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('নামাজের সময় ফিচার শীঘ্রই যোগ করা হবে।'),
-                ),
-              );
-            },
-          ),
-
-          _FeatureCard(
-            icon: Icons.favorite_rounded,
-            title: 'দোয়া',
-            subtitle: 'দৈনন্দিন প্রয়োজনীয় দোয়া',
-            onTap: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('দোয়া ফিচার শীঘ্রই যোগ করা হবে।'),
-                ),
-              );
-            },
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _FeatureCard extends StatelessWidget {
-  final IconData icon;
-  final String title;
-  final String subtitle;
-  final VoidCallback onTap;
-
-  const _FeatureCard({
-    required this.icon,
-    required this.title,
-    required this.subtitle,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      margin: const EdgeInsets.only(bottom: 12),
-      child: ListTile(
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: 18,
-          vertical: 8,
-        ),
-        leading: CircleAvatar(
-          radius: 25,
-          child: Icon(icon),
-        ),
-        title: Text(
-          title,
-          style: const TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 17,
-          ),
-        ),
-        subtitle: Text(subtitle),
-        trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 18),
-        onTap: onTap,
-      ),
-    );
-  }
-}
-
-class QuranPage extends StatelessWidget {
-  const QuranPage({super.key});
-
-  final List<Map<String, String>> surahs = const [
-    {
-      'number': '১',
-      'name': 'সূরা আল-ফাতিহা',
-      'arabic': 'الْحَمْدُ لِلَّهِ رَبِّ الْعَالَمِينَ',
-      'meaning': 'সমস্ত প্রশংসা আল্লাহর, যিনি সকল জগতের প্রতিপালক।',
-    },
-    {
-      'number': '১১২',
-      'name': 'সূরা আল-ইখলাস',
-      'arabic': 'قُلْ هُوَ اللَّهُ أَحَدٌ',
-      'meaning': 'বলুন, তিনি আল্লাহ, এক ও অদ্বিতীয়।',
-    },
-    {
-      'number': '১১৩',
-      'name': 'সূরা আল-ফালাক',
-      'arabic': 'قُلْ أَعُوذُ بِرَبِّ الْفَلَقِ',
-      'meaning': 'বলুন, আমি আশ্রয় গ্রহণ করছি ঊষার প্রতিপালকের।',
-    },
-    {
-      'number': '১১৪',
-      'name': 'সূরা আন-নাস',
-      'arabic': 'قُلْ أَعُوذُ بِرَبِّ النَّاسِ',
-      'meaning': 'বলুন, আমি আশ্রয় গ্রহণ করছি মানুষের প্রতিপালকের।',
-    },
-  ];
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-          'আল-কুরআন',
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
-        centerTitle: true,
-      ),
-      body: ListView.builder(
-        padding: const EdgeInsets.all(16),
-        itemCount: surahs.length,
-        itemBuilder: (context, index) {
-          final surah = surahs[index];
-
-          return Card(
-            margin: const EdgeInsets.only(bottom: 14),
-            child: Padding(
-              padding: const EdgeInsets.all(18),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Row(
-                    children: [
-                      CircleAvatar(
-                        child: Text(surah['number']!),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Text(
-                          surah['name']!,
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 18),
-                  Text(
-                    surah['arabic']!,
-                    textAlign: TextAlign.right,
-                    textDirection: TextDirection.rtl,
-                    style: const TextStyle(
-                      fontSize: 28,
-                      height: 1.8,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const Divider(height: 28),
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text(
-                      surah['meaning']!,
-                      textAlign: TextAlign.left,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        height: 1.7,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          );
-        },
-      ),
-    );
-  }
-}
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: raihan-islamic-app-apk
+          path: build/app/outputs/flutter-apk/app-release.apk
